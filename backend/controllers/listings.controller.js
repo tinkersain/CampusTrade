@@ -1,5 +1,4 @@
 const Listing = require("../models/listings.model");
-const User = require("../models/user.model");
 const connectDB = require("../utils/db");
 
 async function addListing(req, res) {
@@ -7,9 +6,7 @@ async function addListing(req, res) {
     await connectDB();
     let listingData = req.body;
     if (req.file) {
-      listingData.imageName = `${req.protocol}://${req.get("host")}/uploads/${
-        req.file.filename
-      }`;
+      listingData.imageName = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
     }
     let listing = await Listing.create(listingData);
     res.status(201).send(listing);
@@ -46,11 +43,9 @@ async function updateListingDetails(req, res) {
   try {
     await connectDB();
     let listingData = req.body;
-    let updatedListing = await Listing.findByIdAndUpdate(
-      req.params.id,
-      listingData,
-      { new: true }
-    );
+    let updatedListing = await Listing.findByIdAndUpdate(req.params.id, listingData, {
+      new: true
+    });
     if (updatedListing) {
       res.status(200).send(updatedListing);
     } else {
@@ -66,9 +61,11 @@ async function updateListingImage(req, res) {
     await connectDB();
     if (!req.file) return res.status(400).send("No file uploaded");
     let updatedListing = await Listing.findByIdAndUpdate(
-      req.params.id,
-      { imageName: req.file.filename },
-      { new: true }
+      req.params.id, {
+        imageName: `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`,
+      }, {
+        new: true
+      }
     );
     if (updatedListing) {
       res.status(200).send(updatedListing);
@@ -94,6 +91,27 @@ async function deleteListing(req, res) {
   }
 }
 
+async function searchListings(req, res) {
+  try {
+    await connectDB();
+    const {
+      query
+    } = req.query;
+    if (!query) {
+      return res.status(400).send("Missing search query parameter.");
+    }
+    const listings = await Listing.find({
+      itemName: {
+        $regex: query,
+        $options: "i"
+      }
+    }).populate("owner");
+    res.status(200).send(listings);
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+}
+
 module.exports = {
   addListing,
   getAllListings,
@@ -101,4 +119,5 @@ module.exports = {
   updateListingDetails,
   updateListingImage,
   deleteListing,
+  searchListings,
 };

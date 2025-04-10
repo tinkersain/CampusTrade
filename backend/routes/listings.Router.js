@@ -5,6 +5,7 @@ const upload = require("../middleware/fileUpload.middleware");
 
 router.post("/listing", upload.single("image"), listingController.addListing);
 router.get("/listing", listingController.getAllListings);
+router.get("/listing/search", listingController.searchListings);
 router.get("/listing/:id", listingController.getListingById);
 router.put("/listing/:id", listingController.updateListingDetails);
 router.put(
@@ -12,6 +13,5 @@ router.put(
   upload.single("image"),
   listingController.updateListingImage
 );
-router.delete("/listing/:id", listingController.deleteListing);
 
 module.exports = router;
