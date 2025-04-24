@@ -1,16 +1,36 @@
+const jwt = require("jsonwebtoken");
 const Listing = require("../models/listings.model");
 const connectDB = require("../utils/db");
 
 async function addListing(req, res) {
   try {
     await connectDB();
-    let listingData = req.body;
+
+    const authHeader = req.header("Authorization");
+    const token = authHeader && authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Parse form values safely (price as Number)
+    const listingData = {
+      itemName: req.body.itemName,
+      category: req.body.category,
+      description: req.body.description,
+      condition: req.body.condition,
+      price: Number(req.body.price),
+      status: req.body.status,
+      owner: decoded.id,
+    };
+
     if (req.file) {
       listingData.imageName = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
     }
-    let listing = await Listing.create(listingData);
+
+    console.log("Final listing data:", listingData);
+
+    const listing = await Listing.create(listingData);
     res.status(201).send(listing);
   } catch (error) {
+    console.error("Error in addListing:", error);
     res.status(400).send(error.message);
   }
 }

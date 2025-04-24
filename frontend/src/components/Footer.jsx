@@ -6,7 +6,7 @@ import React from "react";
 const Footer = () => {
   return (
     <footer className="footer-class">
-      <p>&copy; 2025 React Router Example</p>
+      <p>&copy; 2025 Campus Trade</p>
     </footer>
   );
 };

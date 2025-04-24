@@ -5,6 +5,8 @@ function ListingSidebar({ setActiveView, activeView }) {
   const items = [
     { key: "allListings", label: "All Listings" },
     { key: "searchListing", label: "Search Listing" },
+    { key: "addListing", label: "Add Listing" },
+    { key: "updateListing", label: "Update Listing" },
   ];
 
   return (

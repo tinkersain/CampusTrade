@@ -1,9 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Form, Button, Card, Row, Col, Container } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 function SearchProduct() {
+  const { name, token } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    function isAuthenticated() {
+      if (
+        name === null ||
+        token === null ||
+        name.length === 0 ||
+        token.length === 0
+      ) {
+        navigate("/auth");
+      }
+    }
+
+    isAuthenticated();
+  }, [name, token]);
+
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [error, setError] = useState("");

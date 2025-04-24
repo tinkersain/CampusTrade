@@ -5,6 +5,8 @@ import axios from "axios";
 import ListingView from "./components/ListingView";
 import ProductDetails from "./components/ProductDetails";
 import SearchProduct from "./pages/Listing/SearchProduct";
+import Auth from "./pages/Auth/Auth";
+import { AuthProvider } from "./context/AuthContext";
 axios.defaults.baseURL = "http://localhost:5000";
 
 const router = createBrowserRouter([
@@ -15,6 +17,7 @@ const router = createBrowserRouter([
       { path: "/", element: <ListingView /> },
       { path: "/product/:id", element: <ProductDetails /> },
       { path: "/search", element: <SearchProduct /> },
+      { path: "/auth", element: <Auth /> },
     ],
   },
 ]);
@@ -22,7 +25,9 @@ const router = createBrowserRouter([
 function App() {
   return (
     <>
-      <RouterProvider router={router} />
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
     </>
   );
 }

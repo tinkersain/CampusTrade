@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken');
 const User = require("./../models/user.model.js");
 const connectDB = require("../utils/db");
 
@@ -16,9 +17,17 @@ async function allUsers(req, res) {
 async function getUserByQuery(req, res) {
   try {
     await connectDB();
-    let { query } = req.params;
+    let {
+      query
+    } = req.params;
     let user = await User.findOne({
-      $or: [{ sic: query }, { email: query }, { mobile: query }],
+      $or: [{
+        sic: query
+      }, {
+        email: query
+      }, {
+        mobile: query
+      }],
     });
 
     if (user) {
@@ -48,8 +57,12 @@ async function updateUser(req, res) {
   try {
     await connectDB();
     let user = req.body;
-    let { sic } = req.params;
-    let updatedUser = await User.findOneAndUpdate({ sic: sic }, user, {
+    let {
+      sic
+    } = req.params;
+    let updatedUser = await User.findOneAndUpdate({
+      sic: sic
+    }, user, {
       new: true,
     });
 
@@ -67,8 +80,12 @@ async function updateUser(req, res) {
 async function deleteUser(req, res) {
   try {
     await connectDB();
-    let { sic } = req.params;
-    let user = await User.findOneAndDelete({ sic: sic });
+    let {
+      sic
+    } = req.params;
+    let user = await User.findOneAndDelete({
+      sic: sic
+    });
 
     if (user) {
       res.status(200).send(user);
@@ -80,10 +97,46 @@ async function deleteUser(req, res) {
   }
 }
 
+// Login User
+async function login(req, res) {
+  try {
+    let {
+      email,
+      password
+    } = req.body
+    let user = await User.findOne({
+      email
+    })
+    if (user) {
+      if (user.password === password) {
+        let token = jwt.sign({
+          id: user._id,
+          email: user.email
+        }, process.env.JWT_SECRET)
+        res.send({
+          token: token,
+          name: user.name
+        })
+      } else {
+        res.status(400).send({
+          message: "Invalid Credentials"
+        })
+      }
+    } else {
+      res.status(400).send({
+        message: "Invalid Credentials"
+      })
+    }
+  } catch (error) {
+    res.status(500).send(error.message)
+  }
+}
+
 module.exports = {
   allUsers,
   getUserByQuery,
   addUser,
   updateUser,
   deleteUser,
+  login
 };
